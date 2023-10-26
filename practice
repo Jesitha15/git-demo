@@ -1,0 +1,114 @@
+SELECT
+    dep_id,
+    br_id,
+    SUM (salary)
+FROM
+    employee
+GROUP BY
+    GROUPING SETS (
+        (dep_id , br_id),
+		(dep_id),
+        (br_id),
+        ()
+    );
+
+SELECT
+   emp_id,e_name,salary
+FROM
+    employee
+GROUP BY
+    CUBE ( emp_id,e_name,salary);
+	
+SELECT e_name
+FROM employee
+WHERE length >= ANY(
+    SELECT MAX(salary)
+    FROM employee
+    INNER JOIN department USING(dep_id)
+    GROUP BY salary );
+	
+select * from employee where br_id <> all(select br_id from branch where br_name in ('Chennai','Coimbatore'));
+
+UPDATE employee e
+SET salary = salary + salary * 5
+FROM department d
+WHERE e.dep_id = d.dep_id;	
+
+update employee set salary=abs(salary) where salary<0;
+
+select * from employee;
+
+create extension if not exists "uuid-ossp";
+	select uuid_generate_v1();
+
+create temp table example(id uuid default uuid_generate_v1(),name varchar(20));
+
+insert into example (name) values('a'),('b'),('c'),('d'),('p'),('j');
+
+drop table orders;
+select *from example;
+select distinct(id) from example;
+
+
+CREATE TABLE orders (
+	id serial NOT NULL PRIMARY KEY,
+	info json NOT NULL
+);
+
+INSERT INTO orders (info)
+VALUES('{ "customer": "Lily Bush", "items": {"product": "Diaper","qty":24}}'),
+      ('{ "customer": "Josh William", "items": {"product": "Toy Car","qty": 1}}'),
+      ('{ "customer": "Mary Clark", "items": {"product": "Toy Train","qty": 2}}');
+
+
+select * from orders;
+select info->'customer' as cus_name from orders;
+select info ->'items'->>'product' as pro_name from orders;
+
+SELECT info ->> 'customer' AS customer,
+	info -> 'items' ->> 'product' AS product
+FROM orders
+WHERE CAST ( info -> 'items' ->> 'qty' AS INTEGER) = 24;
+
+CREATE TABLE contacts (
+	id serial PRIMARY KEY,
+	name VARCHAR (100),
+	phones TEXT []
+);
+insert into contacts (name,phones) values ('Mark Doe',Array['3223542134']),('Antony',Array['9343424523']),('Mark Doe',Array['9436453625','5436476545']);
+
+select * from contacts;
+
+select name,phone[1] from contacts;
+
+create extension hstore;
+drop extension hstore;
+
+CREATE TABLE books (
+	id serial primary key,
+	title VARCHAR (255),
+	attr hstore
+);
+
+SELECT JSON_EXTRACT(info, '$.customer.items')
+FROM orders
+WHERE info IS NOT NULL;
+
+
+CREATE ROLE <replication_role_name> REPLICATION LOGIN;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
